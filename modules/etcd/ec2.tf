@@ -37,7 +37,9 @@ resource "null_resource" "etcd_provisioning" {
   provisioner "remote-exec" {
     inline = [
       "sudo yum update -y && sudo yum install -y nohup",
-      "sudo nohup sh /home/ec2-user/etcd-init.sh > /tmp/etcd.log &"
+      "sudo nohup sh /home/ec2-user/etcd-init.sh > /tmp/etcd.log &",
+      "echo \"testing\"",
+      "sleep 5"
     ]
   }
 }

@@ -3,6 +3,7 @@ module "tls" {
 
   worker_public_ips = "${join(",", aws_instance.kubernetes_worker.*.public_ip)}"
   worker_private_ips = "${join(",", aws_instance.kubernetes_worker.*.private_ip)}"
+  manager_public_ips = "${join(",", aws_instance.kubernetes_manager.*.public_ip)}"
   manager_private_ips = "${join(",", aws_instance.kubernetes_manager.*.private_ip)}"
   manager_public_address = "${aws_elb.kubernetes_manager.dns_name}"
 
@@ -14,7 +15,7 @@ resource "null_resource" "kubernetes_worker_tls" {
 
   connection {
     bastion_host = "${var.bastion_ip}"
-    host = "${element(aws_instance.kubernetes_worker.private_ip, count.index)}"
+    host = "${element(aws_instance.kubernetes_worker.*.private_ip, count.index)}"
     user = "${var.cluster_user}"
     private_key = "${file(var.cluster_private_key_path)}"
   }
@@ -32,6 +33,16 @@ resource "null_resource" "kubernetes_worker_tls" {
   provisioner "file" {
     content = "${element(module.tls.kubernetes_worker_instance_pem, count.index)}"
     destination = "/home/${var.cluster_user}/worker-${count.index}.pem"
+  }
+
+  provisioner "file" {
+    content = "${element(module.tls.kubernetes_worker_kubeconfig, count.index)}"
+    destination = "/home/${var.cluster_user}/worker-${count.index}.kubeconfig"
+  }
+
+  provisioner "file" {
+    content = "${module.tls.kubernetes_kube_proxy_kubeconfig}"
+    destination = "/home/${var.cluster_user}/kube-proxy.kubeconfig"
   }
 }
 

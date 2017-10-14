@@ -2,7 +2,7 @@
 NODE_NAME="${NAME}"
 NODE_IP="${IP}"
 
-ETCD_VER=v3.2.7
+ETCD_VER=v3.2.8
 
 # choose either URL
 GOOGLE_URL=https://storage.googleapis.com/etcd

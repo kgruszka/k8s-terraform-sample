@@ -1,6 +1,6 @@
 resource "null_resource" "tls" {
   provisioner "local-exec" {
-    command = "sh ${path.module}/data/generate.sh ${var.worker_public_ips} ${var.worker_private_ips} ${var.manager_private_ips} ${var.manager_public_address}"
+    command = "sh ${path.module}/data/generate.sh ${var.worker_public_ips} ${var.worker_private_ips} ${var.manager_public_ips} ${var.manager_private_ips} ${var.manager_public_address}"
   }
 }
 
@@ -22,6 +22,19 @@ data "template_file" "kubernetes_worker_instance_pem" {
   count = "${var.worker_count}"
 
   template = "${file("${path.module}/data/worker-${count.index}.pem")}"
+}
+
+data "template_file" "kubernetes_worker_kubeconfig" {
+  depends_on = ["null_resource.tls"]
+  count = "${var.worker_count}"
+
+  template = "${file("${path.module}/data/worker-${count.index}.kubeconfig")}"
+}
+
+data "template_file" "kubernetes_kube_proxy_kubeconfig" {
+  depends_on = ["null_resource.tls"]
+
+  template = "${file("${path.module}/data/kube-proxy.kubeconfig")}"
 }
 
 data "template_file" "kubernetes_manager_ca_pem" {
@@ -58,6 +71,14 @@ output "kubernetes_worker_instance_key_pem" {
 
 output "kubernetes_worker_instance_pem" {
   value = "${data.template_file.kubernetes_worker_instance_pem.*.rendered}"
+}
+
+output "kubernetes_worker_kubeconfig" {
+  value = "${data.template_file.kubernetes_worker_kubeconfig.*.rendered}"
+}
+
+output "kubernetes_kube_proxy_kubeconfig" {
+  value = "${data.template_file.kubernetes_kube_proxy_kubeconfig.rendered}"
 }
 
 output "kubernetes_manager_ca_pem" {

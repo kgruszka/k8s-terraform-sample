@@ -23,11 +23,6 @@ resource "aws_internet_gateway" "kubernetes" {
 resource "aws_route_table" "kubernetes" {
   vpc_id = "${aws_vpc.kubernetes.id}"
 
-  route {
-    cidr_block = "0.0.0.0/0"
-    gateway_id = "${aws_internet_gateway.kubernetes.id}"
-  }
-
   tags = {
     Application = "${var.app_tag}"
     ManagedBy = "Terraform"
@@ -35,9 +30,15 @@ resource "aws_route_table" "kubernetes" {
   }
 }
 
+resource "aws_route" "kubernetes_egress_route" {
+  route_table_id = "${aws_route_table.kubernetes.id}"
+  destination_cidr_block = "0.0.0.0/0"
+  gateway_id = "${aws_internet_gateway.kubernetes.id}"
+}
+
 resource "aws_route_table_association" "kubernetes" {
   route_table_id = "${aws_route_table.kubernetes.id}"
-  subnet_id = "${element(aws_subnet.kubernetes.*.id, count.index)}"
+  subnet_id = "${aws_subnet.kubernetes.id}"
 }
 
 output "kubernetes_subnet_id" {
@@ -49,5 +50,9 @@ output "kubernetes_subnet_cidr" {
 }
 
 output "kubernetes_pod_cidr" {
-  value = "10.1.0.0/24"
+  value = "10.200.0.0/24"
+}
+
+output "kubernetes_route_table_id" {
+  value = "${aws_route_table.kubernetes.id}"
 }

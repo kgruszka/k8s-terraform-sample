@@ -11,7 +11,7 @@ echo "{ \
       \"C\": \"US\", \
       \"L\": \"Portland\", \
       \"O\": \"system:nodes\", \
-      \"OU\": \"Kubernetes The Hard Way\", \
+      \"OU\": \"KUBERNETES_CLUSTER\", \
       \"ST\": \"Oregon\" \
     } \
   ] \

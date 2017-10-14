@@ -9,6 +9,7 @@ variable "cluster_private_key_path" {}
 variable "subnet_id" {}
 variable "subnet_cidr" {}
 variable "pod_cidr" {}
+variable "kubernetes_route_table_id" {}
 variable "manager_security_group_id" {}
 variable "worker_security_group_id" {}
 variable "manager_elb_security_group_id" {}

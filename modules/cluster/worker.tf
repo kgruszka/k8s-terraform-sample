@@ -18,6 +18,7 @@ resource "aws_instance" "kubernetes_worker" {
 }
 
 resource "null_resource" "kubernetes_worker" {
+  depends_on = ["null_resource.control_plane"]
   count = "${aws_instance.kubernetes_worker.count}"
 
   connection {
@@ -27,8 +28,23 @@ resource "null_resource" "kubernetes_worker" {
     private_key = "${file(var.cluster_private_key_path)}"
   }
 
+//  provisioner "file" {
+//    content = "${data.template_file.pod_cidr.rendered}"
+//    destination = "/home/${var.cluster_user}/pod_cidr"
+//  }
+
   provisioner "file" {
-    content = "${data.template_file.pod_cidr.rendered}"
-    destination = "/etc/pod_cidr"
+    content = "${data.template_file.k8s_worker_init.rendered}"
+    destination = "/home/${var.cluster_user}/worker_init.sh"
   }
+
+  provisioner "remote-exec" {
+    inline = [
+      "sudo sh worker_init.sh"
+    ]
+  }
+}
+
+output "worker_private_ips" {
+  value = "${aws_instance.kubernetes_worker.*.private_ip}"
 }

@@ -10,6 +10,20 @@ resource "aws_security_group" "kubernetes_manager" {
     cidr_blocks = ["${aws_vpc.kubernetes.cidr_block}"]
   }
 
+  ingress {
+    from_port = 6443
+    to_port = 6443
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port = 8080
+    to_port = 8080
+    protocol = "tcp"
+    security_groups = ["${aws_security_group.kubernetes_manager_elb.id}"]
+  }
+
   egress {
     from_port = 0
     to_port = 0
@@ -105,6 +119,7 @@ resource "aws_security_group" "kubernetes_etcd" {
 resource "aws_security_group" "kubernetes_manager_elb" {
   name = "kubernetes manager elb"
   vpc_id = "${aws_vpc.kubernetes.id}"
+
   description = "kubernetes manager elb security group"
 
   ingress {

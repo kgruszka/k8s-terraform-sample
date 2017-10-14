@@ -20,8 +20,14 @@ resource "null_resource" "bastion" {
     private_key = "${file(var.bastion_private_key_path)}"
   }
 
+  provisioner "file" {
+    source = "${var.bastion_private_key_path}"
+    destination = "/home/${var.bastion_user}/.ssh/docker-cluster"
+  }
+
   provisioner "remote-exec" {
     inline = [
+      "sudo chmod 600 .ssh/docker-cluster",
       "wget -q --show-progress --https-only --timestamping https://pkg.cfssl.org/R1.2/cfssl_linux-amd64 https://pkg.cfssl.org/R1.2/cfssljson_linux-amd64",
       "chmod +x cfssl_linux-amd64 cfssljson_linux-amd64",
       "sudo mv cfssl_linux-amd64 /usr/local/bin/cfssl",

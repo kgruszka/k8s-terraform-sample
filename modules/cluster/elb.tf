@@ -4,11 +4,19 @@ resource "aws_elb" "kubernetes_manager" {
   subnets = ["${var.subnet_id}"]
   instances = ["${aws_instance.kubernetes_manager.*.id}"]
 
+
   listener {
     instance_port = 8080
-    instance_protocol = "http"
-    lb_port = 80
-    lb_protocol = "http"
+    instance_protocol = "tcp"
+    lb_port = 8080
+    lb_protocol = "tcp"
+  }
+
+  listener {
+    instance_port = 6443
+    instance_protocol = "tcp"
+    lb_port = 6443
+    lb_protocol = "tcp"
   }
 
   health_check {
@@ -16,7 +24,7 @@ resource "aws_elb" "kubernetes_manager" {
     unhealthy_threshold = 2
     timeout             = 3
     target              = "HTTP:8080/healthz"
-    interval            = 15
+    interval            = 30
   }
 
   tags {
@@ -52,4 +60,12 @@ resource "aws_elb" "kubernetes_worker" {
     ManagedBy = "Terraform"
     Role = "Kubernetes worker elb"
   }
+}
+
+output "kubernetes_manager_elb_dns_name" {
+  value = "${aws_elb.kubernetes_manager.dns_name}"
+}
+
+output "kubernetes_worker_elb_dns_name" {
+  value = "${aws_elb.kubernetes_worker.dns_name}"
 }

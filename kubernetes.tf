@@ -37,23 +37,54 @@ module "kubernetes" {
   subnet_id = "${module.vpc.kubernetes_subnet_id}"
   subnet_cidr = "${module.vpc.kubernetes_subnet_cidr}"
   pod_cidr = "${module.vpc.kubernetes_pod_cidr}"
+  kubernetes_route_table_id = "${module.vpc.kubernetes_route_table_id}"
 
 
   app_tag = "${var.app_tag}"
 
 }
 
-module "etcd_cluster" {
-  source = "modules/etcd/"
+module "kubectl" {
+  source = "modules/kubectl"
+  kubernetes_public_address = "${module.kubernetes.kubernetes_manager_public_ips[0]}"
+  tls_data_dir = "modules/cluster/tls/data"
+}
+//
+//module "etcd_cluster" {
+//  source = "modules/etcd/"
+//
+//  region = "${var.region}"
+//  node_count = 3
+//
+//  bastion_public_ip = "${module.vpc.bastion_public_ip}"
+//  cluster_token = "${var.etcd_cluster_token}"
+//  public_key = "${var.cluster_public_key}"
+//  private_key_path = "${var.cluster_private_key_path}"
+//  subnet_id = "${module.vpc.kubernetes_subnet_id}"
+//  security_group_id = "${module.vpc.kubernetes_etcd_security_group_id}"
+//  app_tag = "${var.app_tag}"
+//}
 
-  region = "${var.region}"
-  node_count = 3
+output "bastion_public_ip" {
+  value = "${module.vpc.bastion_public_ip}"
+}
 
-  bastion_public_ip = "${module.vpc.bastion_public_ip}"
-  cluster_token = "${var.etcd_cluster_token}"
-  public_key = "${var.cluster_public_key}"
-  private_key_path = "${var.cluster_private_key_path}"
-  subnet_id = "${module.vpc.kubernetes_subnet_id}"
-  security_group_id = "${module.vpc.kubernetes_etcd_security_group_id}"
-  app_tag = "${var.app_tag}"
+output "kubernetes_manager_private_ips" {
+  value = "${module.kubernetes.manager_private_ips}"
+}
+
+output "kubernetes_manager_public_ips" {
+  value = "${module.kubernetes.kubernetes_manager_public_ips}"
+}
+
+output "kubernetes_worker_private_ips" {
+  value = "${module.kubernetes.worker_private_ips}"
+}
+
+output "kubernetes_manager_elb_dns_name" {
+  value = "${module.kubernetes.kubernetes_manager_elb_dns_name}"
+}
+
+output "kubernetes_worker_elb_dns_name" {
+  value = "${module.kubernetes.kubernetes_worker_elb_dns_name}"
 }
