@@ -9,7 +9,7 @@
       "C": "US",
       "L": "Portland",
       "O": "system:masters",
-      "OU": "Kubernetes The Hard Way",
+      "OU": "KUBERNETES_CLUSTER",
       "ST": "Oregon"
     }
   ]

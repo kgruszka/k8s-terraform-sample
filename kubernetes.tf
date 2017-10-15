@@ -45,25 +45,19 @@ module "kubernetes" {
 }
 
 module "kubectl" {
-  source = "modules/kubectl"
+  source = "modules/local_kubectl"
   kubernetes_public_address = "${module.kubernetes.kubernetes_manager_public_ips[0]}"
   tls_data_dir = "modules/cluster/tls/data"
 }
-//
-//module "etcd_cluster" {
-//  source = "modules/etcd/"
-//
-//  region = "${var.region}"
-//  node_count = 3
-//
-//  bastion_public_ip = "${module.vpc.bastion_public_ip}"
-//  cluster_token = "${var.etcd_cluster_token}"
-//  public_key = "${var.cluster_public_key}"
-//  private_key_path = "${var.cluster_private_key_path}"
-//  subnet_id = "${module.vpc.kubernetes_subnet_id}"
-//  security_group_id = "${module.vpc.kubernetes_etcd_security_group_id}"
-//  app_tag = "${var.app_tag}"
-//}
+
+module "bastion_kubectl" {
+  source = "modules/bastion_kubectl"
+  kubernetes_public_address = "${module.kubernetes.kubernetes_manager_public_ips[0]}"
+  bastion_public_ip = "${module.vpc.bastion_public_ip}"
+  bastion_user = "${var.cluster_user}"
+  bastion_private_key_path = "${var.cluster_private_key_path}"
+  tls_data_dir = "modules/cluster/tls/data"
+}
 
 output "bastion_public_ip" {
   value = "${module.vpc.bastion_public_ip}"

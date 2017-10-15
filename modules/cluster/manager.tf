@@ -53,6 +53,14 @@ resource "null_resource" "control_plane" {
   provisioner "remote-exec" {
     inline = ["sudo sh control_plane_init.sh"]
   }
+
+  provisioner "remote-exec" {
+    inline = [
+      "sleep 15",
+      "kubectl apply -f cluster_role.yml",
+      "kubectl apply -f cluster_role_binding.yml"
+    ]
+  }
 }
 
 output "kubernetes_manager_public_ips" {

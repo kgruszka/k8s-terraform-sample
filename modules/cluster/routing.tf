@@ -4,5 +4,3 @@ resource "aws_route" "kubernetes_pods_routing" {
   destination_cidr_block = "10.200.${count.index}.0/24"
   instance_id = "${element(aws_instance.kubernetes_worker.*.id, count.index)}"
 }
-
-
